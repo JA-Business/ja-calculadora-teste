@@ -1,0 +1,35 @@
+/* Tela de carregamento estática (sem script inline, compatível com a CSP). */
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #FFFFFF;
+  color: #111111;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+#carregando {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 16px;
+  color: #5C6159;
+}
+
+#carregando .marca {
+  width: 136px;
+  height: 48px;
+  margin: 0 0 10px;
+}
+
+#carregando p {
+  margin: 0;
+}
+
+.sem-js {
+  padding: 24px;
+  font-size: 18px;
+}

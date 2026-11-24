@@ -1,0 +1,55 @@
+# Cabeçalhos do Cloudflare Pages (system design 9.7).
+# Só dois domínios de fora, cada um com o endereço exato:
+# - Turnstile (anti-robô do login): challenges.cloudflare.com em script-src e frame-src;
+# - Supabase: tool/web_release.dart acrescenta em connect-src o endereço do
+#   projeto informado na publicação (--supabase-url). Aqui fica só 'self'.
+# No web a sessão fica no localStorage: a CSP forte é obrigatória.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(self), microphone=(self), geolocation=(self), payment=(), usb=(), serial=(), bluetooth=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+# Cache. Regra: só fica guardado por muito tempo o que muda de endereço a
+# cada versão. tool/web_release.dart põe o código, os assets e o motor em
+# /b/<versão>/; o resto o navegador confere com o servidor a cada abertura
+# (resposta 304, sem baixar de novo).
+/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/flutter_bootstrap.js
+  Cache-Control: no-cache
+
+/manifest.json
+  Cache-Control: no-cache
+
+/b/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Ícones: o endereço leva "?v=N", que sobe a cada troca de marca.
+/favicon.ico
+  Cache-Control: public, max-age=604800
+
+/favicon.png
+  Cache-Control: public, max-age=604800
+
+/icons/*
+  Cache-Control: public, max-age=604800
+
+# Build sem a etapa de publicação (arquivos na raiz, sem versão no endereço):
+# nunca guardar sem conferir.
+/main.dart.*
+  Cache-Control: no-cache
+
+/assets/*
+  Cache-Control: no-cache
+
+/canvaskit/*
+  Cache-Control: no-cache
